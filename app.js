@@ -22,8 +22,8 @@ main()
   })
   .catch((err) => console.log(err));
 
-app.use("list", List);
-app.use("auth", Auth);
+app.use("/list", List);
+app.use("/auth", Auth);
 
 app.get("/", (req, res) => {
   res.send("hello");
