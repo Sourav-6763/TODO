@@ -77,12 +77,13 @@ router.put("/update/:id", async (req, res) => {
 
 //!delete todo index
 router.delete("/delete/:id", async (req, res) => {
-  const { id: todoId } = req.params; // Use the id from the params as todoId
-  const { listid: userId } = req.body; // Ensure userId is received from the request body
+  const todoId = req.params.id; // Extract todoId from parameters
+  const { id: userId } = req.body; // User ID from the request body
+  
   try {
-    // Attempt to delete the todo item from the Event collection
+    // Attempt to delete the todo item
     const deletedTodo = await Event.findByIdAndDelete(todoId);
-
+    
     if (!deletedTodo) {
       return res.status(200).json({ message: "Todo not found" });
     }
@@ -94,17 +95,15 @@ router.delete("/delete/:id", async (req, res) => {
       { new: true } // Return the updated user document if needed
     );
 
-    // if (!existingUser) {
-    //   return res.status(200).json({ message: "User not found" });
-    // }
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     // Send success response
-    res
-      .status(200)
-      .json({ message: "Event is deleted", updatedUser: existingUser });
+    res.status(200).json({ message: "Event is deleted", updatedUser: existingUser });
   } catch (err) {
     // Send error response with a 500 status
-    res.status(200).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
