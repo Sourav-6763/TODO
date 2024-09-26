@@ -36,8 +36,9 @@ router.post("/addtodo/:id", async (req, res) => {
 //! show all todo
 router.get("/show/:id", async (req, res) => {
   try {
-    let data = await User.findById(req.params.id).populate("todo").sort({
-      createdate: -1,
+     let data = await User.findById(req.params.id).populate({
+      path: 'todo',
+      options: { sort: { createdate: -1 } } // Sort todos by createdate in descending order
     });
     if (!data) {
       return res.status(200).json({ message: "nothing posts by the user" });
@@ -121,5 +122,51 @@ router.get("/edit/:id", async (req, res) => {
     res.status(200).json(err.message);
   }
 });
+
+
+//!today
+router.get('/users/:userId/events/today', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    
+    const user = await User.findById(userId).populate('todo');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const todayEvents = user.todo.filter(event => {
+      const eventDate = new Date(event.createdate);
+      return eventDate >= startOfDay && eventDate <= endOfDay;
+    });
+
+    res.json(todayEvents);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching events', error });
+  }
+});
+
+
+//!upcoming
+router.get('/users/:userId/events/upcomming', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const today = new Date().toISOString().split('T')[0];
+   
+    const user = await User.findById(userId).populate('todo');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const todayEvents = user.todo.filter(event => event.createdate != today);
+    res.json(todayEvents);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching events', error });
+  }
+});
+
+
 
 module.exports = router;
