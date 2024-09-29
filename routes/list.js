@@ -31,14 +31,15 @@ router.post("/addtodo/:id", async (req, res) => {
     // Respond with an error message
     return res.status(200).json({ message: "User not found" });
   }
+
 });
 
 //! show all todo
 router.get("/show/:id", async (req, res) => {
   try {
-     let data = await User.findById(req.params.id).populate({
-      path: 'todo',
-      options: { sort: { createdate: -1 } } // Sort todos by createdate in descending order
+    let data = await User.findById(req.params.id).populate({
+      path: "todo",
+      options: { sort: { createdate: -1 } }, // Sort todos by createdate in descending order
     });
     if (!data) {
       return res.status(200).json({ message: "nothing posts by the user" });
@@ -80,11 +81,11 @@ router.put("/update/:id", async (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
   const todoId = req.params.id; // Extract todoId from parameters
   const { id: userId } = req.body; // User ID from the request body
-  
+
   try {
     // Attempt to delete the todo item
     const deletedTodo = await Event.findByIdAndDelete(todoId);
-    
+
     if (!deletedTodo) {
       return res.status(200).json({ message: "Todo not found" });
     }
@@ -101,7 +102,9 @@ router.delete("/delete/:id", async (req, res) => {
     }
 
     // Send success response
-    res.status(200).json({ message: "Event is deleted", updatedUser: existingUser });
+    res
+      .status(200)
+      .json({ message: "Event is deleted", updatedUser: existingUser });
   } catch (err) {
     // Send error response with a 500 status
     res.status(500).json({ error: err.message });
@@ -123,50 +126,46 @@ router.get("/edit/:id", async (req, res) => {
   }
 });
 
-
 //!today
-router.get('/users/:userId/events/today', async (req, res) => {
+router.get("/users/:userId/events/today", async (req, res) => {
   try {
     const userId = req.params.userId;
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
     const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-    
-    const user = await User.findById(userId).populate('todo');
+
+    const user = await User.findById(userId).populate("todo");
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const todayEvents = user.todo.filter(event => {
+    const todayEvents = user.todo.filter((event) => {
       const eventDate = new Date(event.createdate);
       return eventDate >= startOfDay && eventDate <= endOfDay;
     });
 
     res.json(todayEvents);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching events', error });
+    res.status(500).json({ message: "Error fetching events", error });
   }
 });
-
 
 //!upcoming
-router.get('/users/:userId/events/upcomming', async (req, res) => {
+router.get("/users/:userId/events/upcomming", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const today = new Date().toISOString().split('T')[0];
-   
-    const user = await User.findById(userId).populate('todo');
+    const today = new Date().toISOString().split("T")[0];
+
+    const user = await User.findById(userId).populate("todo");
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const todayEvents = user.todo.filter(event => event.createdate != today);
+    const todayEvents = user.todo.filter((event) => event.createdate != today);
     res.json(todayEvents);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching events', error });
+    res.status(500).json({ message: "Error fetching events", error });
   }
 });
-
-
 
 module.exports = router;

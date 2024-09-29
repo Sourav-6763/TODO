@@ -3,15 +3,28 @@ const app = express();
 const mongoose = require("mongoose");
 const List = require("./routes/list");
 const Auth = require("./routes/auth");
-require('dotenv').config()
-
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+require("dotenv").config();
 
 app.use(express.json());
-const cors = require("cors");
 app.use(cors());
-
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // Middleware for cookie parsing
+
 const port = process.env.PORT;
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+  }
+}));
 
 
 async function main() {
@@ -19,7 +32,7 @@ async function main() {
 }
 main()
   .then(() => {
-    console.log(" connected to db");
+    console.log("Connected to DB");
   })
   .catch((err) => console.log(err));
 
@@ -31,5 +44,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`server is listening on port ${port}`);
+  console.log(`Server is listening on port ${port}`);
 });
