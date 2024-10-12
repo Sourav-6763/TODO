@@ -38,12 +38,6 @@ router.post("/login", async (req, res) => {
       return res.status(200).json({ message: "Incorrect password" });
     } else {
       const { password, ...others } = user._doc;
-      // Set cookie with user ID
-      req.session.userId = user._id; // Store user ID in session
-      res.cookie('userId', user._id, {
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-        httpOnly: true, // Prevents client-side access to the cookie
-      });
       return res.status(200).json({ others, message: "Login Successfully" });
     }
   } catch (err) {

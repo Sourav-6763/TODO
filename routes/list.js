@@ -116,7 +116,6 @@ router.get("/edit/:id", async (req, res) => {
   let { id } = req.params;
   try {
     let userexists = await Event.findById(id);
-    console.log(userexists);
     if (!userexists) {
       return res.status(200).json({ message: "data not exist" });
     }

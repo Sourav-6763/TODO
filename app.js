@@ -3,32 +3,23 @@ const app = express();
 const mongoose = require("mongoose");
 const List = require("./routes/list");
 const Auth = require("./routes/auth");
-const session = require("express-session");
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
 
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); // Middleware for cookie parsing
 
 const port = process.env.PORT;
 
-app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { 
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-  }
-}));
-
-
 async function main() {
-  await mongoose.connect(process.env.MONGO_URL);
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URL);
+    console.log(`MongoDB Connected : ${conn.connection.host}`);
+  } catch (err) {
+    console.log("error while connecting to your DataBase : ", err);
+    process.exit(1);
+  }
 }
 main()
   .then(() => {
