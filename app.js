@@ -5,6 +5,7 @@ const List = require("./routes/list");
 const Auth = require("./routes/auth");
 const cors = require("cors");
 require("dotenv").config();
+const path = require("path"); // Import path module
 
 app.use(express.json());
 app.use(cors());
@@ -54,9 +55,14 @@ connectToDb();
 //     console.log("Connected to DB");
 //   })
 //   .catch((err) => console.log(err));
+// Serve static files from the React app (or other front-end build)
+app.use(express.static(path.join(__dirname, 'build')));
 
 app.use("/list", List);
 app.use("/auth", Auth);
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html')); // Adjust the path accordingly
+});
 
 app.get("/", (req, res) => {
   res.send("hello");
