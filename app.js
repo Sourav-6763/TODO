@@ -12,20 +12,48 @@ app.use(express.urlencoded({ extended: true }));
 
 const port = process.env.PORT;
 
-async function main() {
+
+// Database connection management
+const connection = {};
+const connectToDb = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URL);
-    console.log(`MongoDB Connected : ${conn.connection.host}`);
-  } catch (err) {
-    console.log("error while connecting to your DataBase : ", err);
-    process.exit(1);
-  }
-}
-main()
-  .then(() => {
+    if (connection.isConnected) {
+      console.log("Connected to existing DB");
+      return;
+    }
+    const db = await mongoose.connect(process.env.MONGO_URL);
+    connection.isConnected = db.connections[0].readyState;
     console.log("Connected to DB");
-  })
-  .catch((err) => console.log(err));
+  } catch (error) {
+    console.error("DB error:", error);
+    process.exit(1); // Exit the application on DB connection failure
+  }
+};
+
+// Call the database connection function
+connectToDb();
+
+
+
+
+
+
+
+
+// async function main() {
+//   try {
+//     const conn = await mongoose.connect(process.env.MONGO_URL);
+//     console.log(`MongoDB Connected : ${conn.connection.host}`);
+//   } catch (err) {
+//     console.log("error while connecting to your DataBase : ", err);
+//     process.exit(1);
+//   }
+// }
+// main()
+//   .then(() => {
+//     console.log("Connected to DB");
+//   })
+//   .catch((err) => console.log(err));
 
 app.use("/list", List);
 app.use("/auth", Auth);
