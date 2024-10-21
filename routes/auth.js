@@ -25,22 +25,25 @@ router.post("/register", async (req, res) => {
 
 //! Login
 router.post("/login", async (req, res) => {
+  console.time('Login'); // Start timing
+
   try {
     const user = await User.findOne({ email: req.body.email });
 
-    // Check if user exists
     if (!user) {
-      return res.status(200).json({ message: "Please sign up" });
+      return res.status(401).json({ message: "Please sign up" });
     }
 
-    const isPasswordCorrect = bcrypt.compareSync(req.body.password, user.password);
+    const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(200).json({ message: "Incorrect password" });
-    } else {
-      const { password, ...others } = user._doc;
-      return res.status(200).json({ others, message: "Login Successfully" });
+      return res.status(401).json({ message: "Incorrect password" });
     }
+
+    const { password, ...others } = user._doc;
+    console.timeEnd('Login'); // End timing
+    return res.status(200).json({ others, message: "Login Successfully" });
   } catch (err) {
+    console.error(err); // Log the error
     return res.status(500).json({ message: "Internal server error" });
   }
 });
