@@ -56,13 +56,11 @@ connectToDb();
 //   })
 //   .catch((err) => console.log(err));
 // Serve static files from the React app (or other front-end build)
-app.use(express.static(path.join(__dirname, 'build')));
+// app.use(express.static(path.join(__dirname, 'build')));
 
 app.use("/list", List);
 app.use("/auth", Auth);
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html')); // Adjust the path accordingly
-});
+
 
 app.get("/", (req, res) => {
   res.send("hello");
